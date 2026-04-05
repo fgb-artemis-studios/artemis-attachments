@@ -1,0 +1,92 @@
+digraph AeropuertoDenver {
+    rankdir=TB;
+    size="8,10";
+    node [shape=circle, style=filled, fontname="Arial Bold"];
+    edge [fontname="Arial", fontsize=9, color="#666666"];
+    
+    // Nodos con colores diferentes por "nivel" de conexión
+    d1 [label="D1\nDENVER", fillcolor="#FF6B6B", fontcolor="white"];
+    
+    // Nodos de primer nivel
+    d2 [label="D2", fillcolor="#4ECDC4"];
+    d9 [label="D9", fillcolor="#4ECDC4"];
+    d13 [label="D13", fillcolor="#4ECDC4"];
+    
+    // Nodos de segundo nivel
+    d3 [label="D3", fillcolor="#45B7D1"];
+    d6 [label="D6", fillcolor="#45B7D1"];
+    d8 [label="D8", fillcolor="#45B7D1"];
+    
+    // Nodos de tercer nivel
+    d4 [label="D4", fillcolor="#96CEB4"];
+    d5 [label="D5", fillcolor="#96CEB4"];
+    d7 [label="D7", fillcolor="#96CEB4"];
+    d12 [label="D12", fillcolor="#96CEB4"];
+    
+    // Nodos de cuarto nivel
+    d10 [label="D10", fillcolor="#FFEAA7"];
+    d11 [label="D11", fillcolor="#FFEAA7"];
+    
+    // Conexiones desde d1 (color especial)
+    d1 -> d2 [label="200", color="#FF6B6B", fontcolor="#FF6B6B"];
+    d1 -> d13 [label="250", color="#FF6B6B", fontcolor="#FF6B6B"];
+    d1 -> d9 [label="290", color="#FF6B6B", fontcolor="#FF6B6B"];
+    
+    // Conexiones desde d2
+    d2 -> d6 [label="360"];
+    d2 -> d3 [label="190"];
+    
+    // Conexiones desde d3
+    d3 -> d6 [label="250"];
+    d3 -> d5 [label="190"];
+    d3 -> d1 [label="300", color="#45B7D1", fontcolor="#45B7D1"];
+    
+    // Conexiones desde d4
+    d4 -> d3 [label="180"];
+    
+    // Conexiones desde d5
+    d5 -> d6 [label="300"];
+    d5 -> d10 [label="400"];
+    
+    // Conexiones desde d6
+    d6 -> d11 [label="350"];
+    d6 -> d12 [label="300"];
+    
+    // Conexiones desde d7
+    d7 -> d4 [label="300"];
+    d7 -> d3 [label="250"];
+    d7 -> d1 [label="150", color="#96CEB4", fontcolor="#96CEB4"];
+    
+    // Conexiones desde d8
+    d8 -> d7 [label="200"];
+    d8 -> d1 [label="220", color="#45B7D1", fontcolor="#45B7D1"];
+    
+    // Conexiones desde d9
+    d9 -> d8 [label="180"];
+    d9 -> d13 [label="180"];
+    
+    // Conexiones desde d10
+    d10 -> d4 [label="200"];
+    
+    // Conexiones desde d11
+    d11 -> d10 [label="700"];
+    d11 -> d5 [label="200"];
+    
+    // Conexiones desde d12
+    d12 -> d2 [label="150"];
+    
+    // Conexiones desde d13
+    d13 -> d12 [label="100"];
+    d13 -> d2 [label="200"];
+    
+    // Agrupamiento por niveles para mejor layout
+    {rank=same; d1}
+    {rank=same; d2; d9; d13}
+    {rank=same; d3; d6; d8}
+    {rank=same; d4; d5; d7; d12}
+    {rank=same; d10; d11}
+    
+    // Título
+    labelloc="t";
+    label=" ";
+}
