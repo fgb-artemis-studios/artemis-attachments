@@ -1,0 +1,212 @@
+{
+  "name": "UploadFileToGitHub",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        2416,
+        752
+      ],
+      "id": "4137ae1e-5069-4dab-83fa-b6f0a8f859f1",
+      "name": "WhenCalled"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.file_id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2576,
+        752
+      ],
+      "id": "ffd3d592-213b-45dc-8c20-60e9b8612035",
+      "name": "GetTelegramFile",
+      "webhookId": "bc54b3ba-96d8-403f-b1c4-171e9d866d03",
+      "credentials": {
+        "telegramApi": {
+          "id": "opwbXRnGEDhWSPGy",
+          "name": "TelegramAPI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Combina los datos originales con la respuesta de Telegram\nconst original = $('WhenCalled').first().json;\nconst telegram = $input.first().json;\n\nreturn [{\n  json: {\n    ...original,\n    file_path: telegram.result.file_path\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2736,
+        752
+      ],
+      "id": "dc2ee65b-82fc-4947-9540-944618401595",
+      "name": "MergeAndSet"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.telegram.org/file/bot8706013127:AAGn8vNjx0gUrEIqeuL0orCDed4bOyh4604/{{ $json.file_path }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2896,
+        752
+      ],
+      "id": "f2ce9637-0da0-4d31-ba2e-3f34d49e2b0a",
+      "name": "DownloadFile"
+    },
+    {
+      "parameters": {
+        "jsCode": "const original = $('MergeAndSet').first().json;\nconst binaryData = $input.all()[0].binary;\nreturn [{\n  json: {\n    ...original,\n    file_name: original.file_name,\n    file_size: original.file_size,\n    chatId: original.chatId\n  },\n  binary: binaryData\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3056,
+        752
+      ],
+      "id": "33cf85ab-152f-4a81-826f-63e8c3cf6ab4",
+      "name": "MergeData"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "owner": "fgb-artemis-studios",
+        "repository": "artemis-attachments",
+        "filePath": "=uploads/{{ $json.file_name }}",
+        "binaryData": true,
+        "commitMessage": "Artemis Telegram upload",
+        "additionalParameters": {
+          "committer": {
+            "name": "Artemis Bot",
+            "email": "artemis@bot.com"
+          }
+        }
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        3216,
+        752
+      ],
+      "id": "9ee398c1-6f0b-4a2b-96b7-2736a5151bb7",
+      "name": "Create a file",
+      "webhookId": "3f86edbb-1361-4d82-80ef-d991baf2739c",
+      "credentials": {
+        "githubApi": {
+          "id": "NvagwIuVoKLNlOJ2",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const original = $('WhenCalled').first().json;\nconst githubResponse = $input.first().json;\nconst downloadUrl = githubResponse.content?.download_url || \n                    `https://raw.githubusercontent.com/fgb-artemis-studios/artemis-attachments/main/uploads/${original.file_name}`;\n\nreturn [{\n  json: {\n    url: downloadUrl,\n    file_name: original.file_name,\n    file_size: original.file_size,\n    chatId: original.chatId\n  }\n}];  "
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3376,
+        752
+      ],
+      "id": "59c9f22f-13dc-459e-b037-913732100b6b",
+      "name": "ReturnResult"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "WhenCalled": {
+      "main": [
+        [
+          {
+            "node": "GetTelegramFile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetTelegramFile": {
+      "main": [
+        [
+          {
+            "node": "MergeAndSet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MergeAndSet": {
+      "main": [
+        [
+          {
+            "node": "DownloadFile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DownloadFile": {
+      "main": [
+        [
+          {
+            "node": "MergeData",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MergeData": {
+      "main": [
+        [
+          {
+            "node": "Create a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a file": {
+      "main": [
+        [
+          {
+            "node": "ReturnResult",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "7b5194b0-03ee-45c7-9676-87e6c8efc461",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c4b0de002223cde694ae55e6369f2a8f55e6d22cac9e99888c3c8708c578fd03"
+  },
+  "id": "LzRWkolfIwz6FwwC",
+  "tags": []
+}
